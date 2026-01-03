@@ -40,46 +40,38 @@
   </div>
 
   <script>
-    const t = document.getElementById("t");
-    const out = document.getElementById("out");
-    const btnSend = document.getElementById("send");
-    const btnPm = document.getElementById("pm");
-    const btnSera = document.getElementById("sera");
+  const t = document.getElementById("t");
+const out = document.getElementById("out");
 
-    function mostra(testo) {
-      out.style.display = "block";
-      out.textContent = testo;
-    }
+function mostra(testo) {
+  out.style.display = "block";
+  out.textContent = testo;
+}
 
-    async function chiamaClara(modalita) {
-      const testo = (t.value || "").trim();
-      if (!testo) {
-        mostra("Scrivi anche solo una riga. Poi premi ➜.");
-        return;
-      }
+async function invia() {
+  const testo = (t.value || "").trim();
+  if (!testo) {
+    mostra("Scrivi qualcosa, poi premi ➜.");
+    return;
+  }
 
-      mostra("Un attimo…");
+  mostra("Un attimo…");
 
-      try {
-        const r = await fetch("/api/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: testo, mode: modalita })
-        });
+  try {
+    const r = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: testo, mode: "mattino" })
+    });
+    const data = await r.json();
+    mostra(data.reply || "Nessuna risposta. Riprova.");
+  } catch {
+    mostra("Errore di connessione. Riprova tra poco.");
+  }
+}
 
-        const data = await r.json();
-        mostra(data.reply || "Non ho ricevuto risposta. Riprova.");
-      } catch (e) {
-        mostra("Ora non riesco a rispondere. Riprova tra poco.");
-      }
-    }
+document.getElementById("send").addEventListener("click", invia);
 
-    // ➜ = Mattino
-    btnSend.onclick = () => chiamaClara("mattino");
-
-    // Pulsanti giornata
-    btnPm.onclick = () => chiamaClara("pomeriggio");
-    btnSera.onclick = () => chiamaClara("sera");
   </script>
 </body>
 </html>
