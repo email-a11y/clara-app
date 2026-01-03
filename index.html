@@ -5,58 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Clara</title>
   <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial;
-      margin: 0;
-      background: #fff;
-    }
-    .wrap {
-      max-width: 720px;
-      margin: 0 auto;
-      padding: 22px;
-    }
-    h1 {
-      font-size: 28px;
-      margin: 4px 0 14px;
-    }
-    .sub {
-      color: #444;
-      line-height: 1.4;
-      margin-bottom: 12px;
-    }
-    textarea {
-      width: 100%;
-      min-height: 120px;
-      font-size: 18px;
-      padding: 14px;
-      border: 1px solid #ddd;
-      border-radius: 14px;
-      outline: none;
-    }
-    button {
-      width: 100%;
-      margin-top: 12px;
-      padding: 14px 16px;
-      font-size: 18px;
-      border: none;
-      border-radius: 14px;
-      cursor: pointer;
-      background: #f2f2f2;
-    }
-    .card {
-      margin-top: 14px;
-      padding: 14px;
-      border: 1px solid #eee;
-      border-radius: 14px;
-      white-space: pre-wrap;
-      line-height: 1.45;
-      font-size: 18px;
-    }
-    .muted {
-      color: #666;
-      font-size: 14px;
-      margin-top: 10px;
-    }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial; margin: 0; background: #fff; }
+    .wrap { max-width: 720px; margin: 0 auto; padding: 22px; }
+    h1 { font-size: 28px; margin: 4px 0 14px; }
+    .sub { color: #444; line-height: 1.4; margin-bottom: 12px; }
+    .row { display: flex; gap: 10px; }
+    textarea { flex: 1; min-height: 120px; font-size: 18px; padding: 14px; border: 1px solid #ddd; border-radius: 14px; outline: none; }
+    .send { width: 72px; font-size: 20px; border: none; border-radius: 14px; cursor: pointer; background: #f2f2f2; }
+    .btn { width: 100%; margin-top: 10px; padding: 12px 14px; font-size: 16px; border: none; border-radius: 14px; cursor: pointer; background: #f6f6f6; }
+    .card { margin-top: 14px; padding: 14px; border: 1px solid #eee; border-radius: 14px; white-space: pre-wrap; line-height: 1.45; font-size: 18px; }
+    .muted { color: #666; font-size: 14px; margin-top: 10px; }
   </style>
 </head>
 <body>
@@ -68,78 +26,74 @@
       Scrivi quello che hai in testa. Anche in modo confuso va bene.
     </div>
 
-    <textarea id="t" placeholder="Scrivi qui…"></textarea>
+    <div class="row">
+      <textarea id="t" placeholder="Scrivi qui…"></textarea>
+      <button class="send" id="send" title="Invia">➜</button>
+    </div>
 
-
-    <button onclick="mattino()">Vediamo cosa conta</button>
-    <button onclick="pomeriggio()">È pomeriggio</button>
+    <button class="btn" id="pm">È pomeriggio</button>
+    <button class="btn" id="sera">Chiudiamo la giornata</button>
 
     <div id="out" class="card" style="display:none;"></div>
-
     <div class="muted">Nessuna fretta. Solo l’essenziale.</div>
   </div>
 
   <script>
-  function mattino() {
+    const t = document.getElementById("t");
     const out = document.getElementById("out");
-    const text = (document.getElementById("t").value || "").trim();
 
-    out.style.display = "block";
-
-    if (!text) {
-      out.textContent =
-        "Oggi conta questo:\n" +
-        "• Anche poche parole vanno bene.\n\n" +
-        "Questo può aspettare:\n" +
-        "• Il resto, per ora.\n\n" +
-        "Per ora basta così.";
-      return;
-    }
-
-    out.textContent =
-      "Da quello che hai scritto, oggi conta questo:\n" +
-      "• " + text + "\n\n" +
-      "Questo può aspettare:\n" +
-      "• Il resto, per ora.\n\n" +
-      "Per ora basta così.";
-  }
-
-  function pomeriggio() {
-    const out = document.getElementById("out");
-    const text = (document.getElementById("t").value || "").trim();
-
-    out.style.display = "block";
-
-    if (!text) {
-      out.textContent =
-        "Siamo a metà giornata.\n\n" +
-        "Va bene anche così.\n\n" +
-        "Per ora basta così.";
-      return;
-    }
-
-    out.textContent =
-      "Siamo a metà giornata.\n\n" +
-      "Da quello che hai scritto, scegli una sola cosa piccola:\n" +
-      "• " + text + "\n\n" +
-      "Il resto può aspettare.\n\n" +
-      "Per ora basta così.";
-  }
-</script>
-
-    }
-
-    function pomeriggio() {
-      const out = document.getElementById("out");
+    function show(text) {
       out.style.display = "block";
-      out.textContent =
-        "Siamo a metà giornata.\n\n" +
-        "Se qualcosa è rimasto indietro, va bene così.\n\n" +
-        "Scegline una sola cosa.\n" +
-        "Oppure niente.\n\n" +
-        "Anche questo va bene.";
+      out.textContent = text;
     }
+
+    function pickMorningReply(input) {
+      const s = input.toLowerCase();
+
+      if (!input.trim()) {
+        return "Oggi conta questo:\n• Anche poche parole vanno bene.\n\nQuesto può aspettare:\n• Il resto, per ora.\n\nPer ora basta così.";
+      }
+
+      // risposte più “umane” e concrete, senza poesia
+      if (s.includes("noiosa") || s.includes("vuota") || s.includes("nulla")) {
+        return "Da quello che hai scritto, oggi conta questo:\n• Va bene che sia una giornata tranquilla.\n• Una cosa piccola, se ti va.\n\nQuesto può aspettare:\n• Riempire il tempo per forza.\n\nPer ora basta così.";
+      }
+
+      if (s.includes("ansia") || s.includes("agit") || s.includes("stress") || s.includes("confus")) {
+        return "Da quello che hai scritto, oggi conta questo:\n• Una cosa sola, semplice.\n• Fare spazio al resto.\n\nQuesto può aspettare:\n• Tutto ciò che ti schiaccia adesso.\n\nPer ora basta così.";
+      }
+
+      return "Da quello che hai scritto, oggi conta questo:\n• " + input.trim() + "\n\nQuesto può aspettare:\n• Il resto, per ora.\n\nPer ora basta così.";
+    }
+
+    function pickAfternoonReply(input) {
+      if (!input.trim()) {
+        return "Siamo a metà giornata.\n\nSe non c’è niente da sistemare, va bene così.\n\nPer ora basta così.";
+      }
+      return "Siamo a metà giornata.\n\nSe qualcosa è rimasto indietro, va bene così.\n\nScegli una sola cosa piccola:\n• " + input.trim() + "\n\nIl resto può aspettare.\n\nPer ora basta così.";
+    }
+
+    function pickEveningReply(input) {
+      if (!input.trim()) {
+        return "La giornata è finita.\n\nNon serve aggiungere altro.\n\nIl resto può aspettare.";
+      }
+      return "La giornata è finita.\n\nOggi può bastare questo:\n• " + input.trim() + "\n\nIl resto può aspettare.";
+    }
+
+    // invia (freccia) = mattino
+    document.getElementById("send").onclick = () => show(pickMorningReply(t.value));
+
+    // tasto invio da tastiera (iPhone/PC): Ctrl+Invio o Enter (se vuoi)
+    t.addEventListener("keydown", (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+        show(pickMorningReply(t.value));
+      }
+    });
+
+    document.getElementById("pm").onclick = () => show(pickAfternoonReply(t.value));
+    document.getElementById("sera").onclick = () => show(pickEveningReply(t.value));
   </script>
 </body>
 </html>
+
 
