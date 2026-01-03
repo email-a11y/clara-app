@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="it">
 <head>
@@ -41,57 +42,44 @@
   <script>
     const t = document.getElementById("t");
     const out = document.getElementById("out");
+    const btnSend = document.getElementById("send");
+    const btnPm = document.getElementById("pm");
+    const btnSera = document.getElementById("sera");
 
-    function show(text) {
+    function mostra(testo) {
       out.style.display = "block";
-      out.textContent = text;
+      out.textContent = testo;
     }
 
-    function pickMorningReply(input) {
-      const s = input.toLowerCase();
-
-      if (!input.trim()) {
-        return "Oggi conta questo:\n• Anche poche parole vanno bene.\n\nQuesto può aspettare:\n• Il resto, per ora.\n\nPer ora basta così.";
+    async function chiamaClara(modalita) {
+      const testo = (t.value || "").trim();
+      if (!testo) {
+        mostra("Scrivi anche solo una riga. Poi premi ➜.");
+        return;
       }
 
-      // risposte più “umane” e concrete, senza poesia
-      if (s.includes("noiosa") || s.includes("vuota") || s.includes("nulla")) {
-        return "Da quello che hai scritto, oggi conta questo:\n• Va bene che sia una giornata tranquilla.\n• Una cosa piccola, se ti va.\n\nQuesto può aspettare:\n• Riempire il tempo per forza.\n\nPer ora basta così.";
-      }
+      mostra("Un attimo…");
 
-      if (s.includes("ansia") || s.includes("agit") || s.includes("stress") || s.includes("confus")) {
-        return "Da quello che hai scritto, oggi conta questo:\n• Una cosa sola, semplice.\n• Fare spazio al resto.\n\nQuesto può aspettare:\n• Tutto ciò che ti schiaccia adesso.\n\nPer ora basta così.";
-      }
+      try {
+        const r = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: testo, mode: modalita })
+        });
 
-      return "Da quello che hai scritto, oggi conta questo:\n• " + input.trim() + "\n\nQuesto può aspettare:\n• Il resto, per ora.\n\nPer ora basta così.";
+        const data = await r.json();
+        mostra(data.reply || "Non ho ricevuto risposta. Riprova.");
+      } catch (e) {
+        mostra("Ora non riesco a rispondere. Riprova tra poco.");
+      }
     }
 
-    function pickAfternoonReply(input) {
-      if (!input.trim()) {
-        return "Siamo a metà giornata.\n\nSe non c’è niente da sistemare, va bene così.\n\nPer ora basta così.";
-      }
-      return "Siamo a metà giornata.\n\nSe qualcosa è rimasto indietro, va bene così.\n\nScegli una sola cosa piccola:\n• " + input.trim() + "\n\nIl resto può aspettare.\n\nPer ora basta così.";
-    }
+    // ➜ = Mattino
+    btnSend.onclick = () => chiamaClara("mattino");
 
-    function pickEveningReply(input) {
-      if (!input.trim()) {
-        return "La giornata è finita.\n\nNon serve aggiungere altro.\n\nIl resto può aspettare.";
-      }
-      return "La giornata è finita.\n\nOggi può bastare questo:\n• " + input.trim() + "\n\nIl resto può aspettare.";
-    }
-
-    // invia (freccia) = mattino
-    document.getElementById("send").onclick = () => show(pickMorningReply(t.value));
-
-    // tasto invio da tastiera (iPhone/PC): Ctrl+Invio o Enter (se vuoi)
-    t.addEventListener("keydown", (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
-        show(pickMorningReply(t.value));
-      }
-    });
-
-    document.getElementById("pm").onclick = () => show(pickAfternoonReply(t.value));
-    document.getElementById("sera").onclick = () => show(pickEveningReply(t.value));
+    // Pulsanti giornata
+    btnPm.onclick = () => chiamaClara("pomeriggio");
+    btnSera.onclick = () => chiamaClara("sera");
   </script>
 </body>
 </html>
