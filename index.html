@@ -68,7 +68,8 @@
       Scrivi quello che hai in testa. Anche in modo confuso va bene.
     </div>
 
-    <textarea placeholder="Scrivi qui…"></textarea>
+    <textarea id="t" placeholder="Scrivi qui…"></textarea>
+
 
     <button onclick="mattino()">Vediamo cosa conta</button>
     <button onclick="pomeriggio()">È pomeriggio</button>
@@ -79,16 +80,53 @@
   </div>
 
   <script>
-    function mattino() {
-      const out = document.getElementById("out");
-      out.style.display = "block";
+  function mattino() {
+    const out = document.getElementById("out");
+    const text = (document.getElementById("t").value || "").trim();
+
+    out.style.display = "block";
+
+    if (!text) {
       out.textContent =
         "Oggi conta questo:\n" +
-        "• Una cosa semplice.\n" +
-        "• Andare piano.\n\n" +
+        "• Anche poche parole vanno bene.\n\n" +
         "Questo può aspettare:\n" +
-        "• Tutto il resto.\n\n" +
+        "• Il resto, per ora.\n\n" +
         "Per ora basta così.";
+      return;
+    }
+
+    out.textContent =
+      "Da quello che hai scritto, oggi conta questo:\n" +
+      "• " + text + "\n\n" +
+      "Questo può aspettare:\n" +
+      "• Il resto, per ora.\n\n" +
+      "Per ora basta così.";
+  }
+
+  function pomeriggio() {
+    const out = document.getElementById("out");
+    const text = (document.getElementById("t").value || "").trim();
+
+    out.style.display = "block";
+
+    if (!text) {
+      out.textContent =
+        "Siamo a metà giornata.\n\n" +
+        "Va bene anche così.\n\n" +
+        "Per ora basta così.";
+      return;
+    }
+
+    out.textContent =
+      "Siamo a metà giornata.\n\n" +
+      "Da quello che hai scritto, scegli una sola cosa piccola:\n" +
+      "• " + text + "\n\n" +
+      "Il resto può aspettare.\n\n" +
+      "Per ora basta così.";
+  }
+</script>
+
     }
 
     function pomeriggio() {
